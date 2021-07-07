@@ -1,9 +1,9 @@
 package com.easy.framework.core.base;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.easy.framework.core.domain.http.request.Page;
 import com.github.pagehelper.ISelect;
 import com.github.pagehelper.PageInfo;
-import com.jd.gms.framework.core.domain.Page;
 
 import java.util.List;
 

@@ -3,6 +3,11 @@ package com.easy.framework.core.domain.http.response;
 import com.easy.framework.core.enums.EnumInterface;
 import com.easy.framework.core.enums.HttpResultEnum;
 import com.easy.framework.core.exception.AppException;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * 统一API响应结果封装
@@ -20,6 +25,9 @@ import com.easy.framework.core.exception.AppException;
  * @author xiongzhao
  * @date 2020/06/11
  */
+@Accessors(chain = true)
+@Getter
+@Setter
 public class ApiResult {
     /**
      * 状态码，0为成功
@@ -95,33 +103,6 @@ public class ApiResult {
         return new ApiResult()
                 .setCode(code)
                 .setMessage(message);
-    }
-
-    public Integer getCode() {
-        return code;
-    }
-
-    public ApiResult setCode(Integer code) {
-        this.code = code;
-        return this;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public ApiResult setMessage(String message) {
-        this.message = message;
-        return this;
-    }
-
-    public Object getData() {
-        return data;
-    }
-
-    public ApiResult setData(Object data) {
-        this.data = data;
-        return this;
     }
 }
 
