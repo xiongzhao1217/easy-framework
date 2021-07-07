@@ -4,7 +4,6 @@ import org.redisson.api.RedissonClient;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**

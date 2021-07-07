@@ -1,5 +1,7 @@
 package com.easy.framework.core.domain.rpc.request;
 
+import com.easy.framework.core.exception.InvalidParamException;
+
 /**
  * RPC接口入参父类，包含内控合规参数
  *
