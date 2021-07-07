@@ -11,7 +11,7 @@ import java.io.Serializable;
  * @author xiongzhao
  * @date 2021/06/15
  */
-public abstract class BaseRequest implements Serializable {
+public abstract class BaseRequest implements Validator, Serializable {
 
     /**
      * 序列化id
@@ -52,11 +52,6 @@ public abstract class BaseRequest implements Serializable {
             throw new InvalidParamException(e.getMessage());
         }
     }
-
-    /**
-     * 需要子类实现的自定义校验
-     */
-    public abstract void validate();
 
     public String getAppCode() {
         return appCode;
