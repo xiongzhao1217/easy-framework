@@ -64,7 +64,7 @@ abstract public class AbstractExcelUploadService<T extends BaseRow, C extends Up
     /**
      * lock key前缀
      */
-    private static String Lock_Prefix = "bgms:excel:upload:lock";
+    private static String Lock_Prefix = "easy:excel:upload:lock";
 
     /**
      * executorService
@@ -81,25 +81,25 @@ abstract public class AbstractExcelUploadService<T extends BaseRow, C extends Up
     }
 
     @Override
-    public void execute(C context) {
+    public void execute(C context, boolean isParallel) {
         // 预处理
         List<T> list = beforeProcess(context);
 
         // 同步执行业务逻辑
-        this.doProcess(context, list);
+        this.doProcess(context, list, isParallel, null);
     }
 
     @Override
-    public void asyncExecute(C context) {
+    public void asyncExecute(C context, boolean isParallel) {
         // 预处理
         List<T> list = beforeProcess(context);
 
         // 异步执行业务逻辑
-        executorService.execute(() -> this.doProcess(context, list));
+        executorService.execute(() -> this.doProcess(context, list, isParallel, null));
     }
 
     @Override
-    public void asyncExecute(C context, ExecutorService executor) {
+    public void asyncExecute(C context, boolean isParallel, ExecutorService executor) {
 
         if (executor == null) {
             throw new ServiceException("自定义线程池不能为空");
@@ -109,7 +109,7 @@ abstract public class AbstractExcelUploadService<T extends BaseRow, C extends Up
         List<T> list = beforeProcess(context);
 
         // 异步执行业务逻辑
-        executor.execute(() -> this.doProcess(context, list));
+        executor.execute(() -> this.doProcess(context, list, isParallel, executor));
     }
 
     /**
@@ -206,7 +206,7 @@ abstract public class AbstractExcelUploadService<T extends BaseRow, C extends Up
      * @param context
      * @param list
      */
-    private void doProcess(C context, List<T> list) {
+    private void doProcess(C context, List<T> list, boolean isParallel, ExecutorService executor) {
         // 任务id
         String taskId = context.getTaskId();
 
@@ -276,28 +276,15 @@ abstract public class AbstractExcelUploadService<T extends BaseRow, C extends Up
             }
 
             // 4. 进行业务逻辑处理
-            long bizStart = System.currentTimeMillis();
-            List<List<T>> partList = Lists.partition(validList, partSize());
-            for (int i = 0; i < partList.size(); i++) {
-                long batchStart = System.currentTimeMillis();
-                List<T> part = partList.get(i);
-                int success = 0;
-                try {
-                    success = handle(part, context);
-                } catch (Exception e) {
-                    log.error("通用上传EXCEl组件，单批次处理excel数据异常," + e.getMessage(), e);
-                } finally {
-                    log.info("通用上传任务，taskId={}，进行业务数据处理，正在处理第{}批，共{}批，耗时{}毫秒，总耗时{}毫秒",
-                            taskId,
-                            i + 1,
-                            partList.size(),
-                            System.currentTimeMillis() - batchStart,
-                            System.currentTimeMillis() - start
-                    );
-                    // 更新任务进度
-                    updateTask(context, part.size(), success, null);
-                }
+            long bizStart = System.currentTimeMillis();                              // 业务操作开始时间
+            List<List<T>> partList = Lists.partition(validList, partSize());         // 按照partSize分片处理
+
+            if (isParallel) {
+                this.doParallelHandle(context, partList, start, executor);
+            } else {
+                this.doHandle(context, partList, start);
             }
+
             log.info("通用上传任务，taskId={}，完成业务数据处理，耗时{}毫秒，总耗时{}毫秒", taskId, System.currentTimeMillis() - bizStart, System.currentTimeMillis() - start);
 
             if (context.getTask().getSuccess() == totalSize) {
@@ -316,6 +303,70 @@ abstract public class AbstractExcelUploadService<T extends BaseRow, C extends Up
             unLock(context);
             // 记录失败列表
             saveFailsList(context);
+        }
+    }
+    
+    /**
+     * 并发处理业务
+     * @param context
+     * @param partList
+     * @param start
+     * @throws InterruptedException
+     */
+    private void doParallelHandle(C context, List<List<T>> partList, long start, ExecutorService executor) throws InterruptedException {
+        long bizStart = System.currentTimeMillis();                              // 业务操作开始时间
+        AtomicInteger batchNo = new AtomicInteger();                             // 自增原子类
+        List<Callable<Integer>> callableList = partList.stream()                 // 多线程并发处理
+                .map(part -> (Callable<Integer>)() -> handle(part, context))
+                .collect(toList());
+        List<Future<Integer>> futures = Optional.ofNullable(executor).orElse(executorService).invokeAll(callableList); // 交给线程池处理
+
+        for (int i = 0; i < futures.size(); i++) {
+            int success = 0;
+            try {
+                success = futures.get(i).get();
+            } catch (Exception e) {
+                log.error(String.format("通用上传任务，taskId=%s，单批次处理excel数据异常，%s", context.getTaskId(), e.getMessage()), e);
+            } finally {
+                log.info("通用上传任务，taskId={}，进行业务数据处理，正在处理第{}批，共{}批，耗时{}毫秒，总耗时{}毫秒",
+                        context.getTaskId(),
+                        batchNo.incrementAndGet(),
+                        partList.size(),
+                        System.currentTimeMillis() - bizStart,
+                        System.currentTimeMillis() - start
+                );
+                // 更新任务进度
+                updateTask(context, partList.get(i).size(), success, null);
+            }
+        }
+    }
+
+    /**
+     * 非并发处理业务
+     * @param context
+     * @param partList
+     * @param start
+     */
+    private void doHandle(C context, List<List<T>> partList, long start) {
+        for (int i = 0; i < partList.size(); i++) {
+            long batchStart = System.currentTimeMillis();
+            List<T> part = partList.get(i);
+            int success = 0;
+            try {
+                success = handle(part, context);
+            } catch (Exception e) {
+                log.error(String.format("通用上传任务，taskId=%s，单批次处理excel数据异常，%s", context.getTaskId(), e.getMessage()), e);
+            } finally {
+                log.info("通用上传任务，taskId={}，进行业务数据处理，正在处理第{}批，共{}批，耗时{}毫秒，总耗时{}毫秒",
+                        context.getTaskId(),
+                        i + 1,
+                        partList.size(),
+                        System.currentTimeMillis() - batchStart,
+                        System.currentTimeMillis() - start
+                );
+                // 更新任务进度
+                updateTask(context, part.size(), success, null);
+            }
         }
     }
 
