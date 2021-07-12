@@ -9,39 +9,35 @@ package com.easy.framework.core.domain.http.request;
 public class Page {
 
     /**
-     * 默认构造
-     */
-    public Page() {}
-
-    /**
-     * 构造
-     * @param pageNo
-     * @param pageSize
-     */
-    public Page(Integer pageNo, Integer pageSize) {
-        this.pageNo = pageNo;
-        this.pageSize = pageSize;
-    }
-
-    /**
-     * 构造
-     * @param pageNo
-     * @param pageSize
-     */
-    public Page(Integer pageNo, Integer pageSize, String orderBy) {
-        this.pageNo = pageNo;
-        this.pageSize = pageSize;
-        this.orderBy = orderBy;
-    }
-
-    /**
      * 当前页
      */
-    private Integer pageNo = 1;
+    private Integer pageNum = 1;
     /**
      * 页面大小
      */
     private Integer pageSize = 10;
+
+    /**
+     * 构造
+     * @param pageNum
+     * @param pageSize
+     */
+    public Page(Integer pageNum, Integer pageSize) {
+        this.pageNum = pageNum;
+        this.pageSize = pageSize;
+    }
+
+    /**
+     * 构造
+     * @param pageNum
+     * @param pageSize
+     */
+    public Page(Integer pageNum, Integer pageSize, String orderBy) {
+        this.pageNum = pageNum;
+        this.pageSize = pageSize;
+        this.orderBy = orderBy;
+    }
+    
 
     /**
      * order by
@@ -49,12 +45,12 @@ public class Page {
      */
     private String orderBy;
 
-    public Integer getPageNo() {
-        return pageNo;
+    public Integer getPageNum() {
+        return pageNum;
     }
 
-    public void setPageNo(Integer pageNo) {
-        this.pageNo = pageNo;
+    public void setPageNum(Integer pageNum) {
+        this.pageNum = pageNum;
     }
 
     public Integer getPageSize() {

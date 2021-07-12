@@ -17,7 +17,7 @@ import java.util.function.Function;
  * excel上传接口
  *
  * <p>
- * 入口方法为{@link ExcelUploadService#execute(UploadContext)} (UploadContext)}
+ * 入口方法为{@link ExcelUploadService#execute(UploadContext, boolean)} (UploadContext)}
  * </p>
  *
  * @param <T> excel行数据对应的实体类, 继承 {@link BaseRow} 用于记录每一行处理失败的原因

@@ -32,14 +32,14 @@ public class BaseService<M extends BaseMapper<T>, T> extends ServiceImpl<M, T> i
      */
     @Override
     public PageInfo<T> queryPage(Page page, Wrapper<T> queryWrapper) {
-        return PageHelper.startPage(page.getPageNo(), page.getPageSize())
+        return PageHelper.startPage(page.getPageNum(), page.getPageSize())
                 .setOrderBy(getOrderBy(page.getOrderBy()))
                 .doSelectPageInfo(() -> list(queryWrapper));
     }
 
     @Override
     public PageInfo<T> queryPage(Page page) {
-        return PageHelper.startPage(page.getPageNo(), page.getPageSize())
+        return PageHelper.startPage(page.getPageNum(), page.getPageSize())
                 .setOrderBy(getOrderBy(page.getOrderBy()))
                 .doSelectPageInfo(this::list);
     }

@@ -21,6 +21,7 @@
 
     <modules>
         <module>easy-core</module>
+        <module>easy-util</module>
         <module>easy-excel</module>
     </modules>
 
