@@ -29,34 +29,55 @@ import java.util.function.Function;
 public interface ExcelUploadService<T extends BaseRow, C extends UploadContext<T>> {
 
     /**
-     * 方法执行入口
-     * @param context
-     */
-    void execute(C context);
-
-    /**
-     * 方法执行入口
+     * 同步执行入口
      *
      * <p>
+     *     excel每一行并发执行：
+     *     通过设置isParallel为true，同时指定{@link ExcelUploadService#partSize}分片大小，即可触发excel上传
+     *     任务并发执行.
+     *     eg: 上传的excel总行数1000，分片大小设置为100，则分为1000 * 100 = 10个线程并发的去处理任务.
+     * </p>
+     *
+     * @param context 上传上下文
+     * @param isParallel 是否并发执行
+     */
+    void execute(C context, boolean isParallel);
+
+    /**
+     * 异步执行入口，使用默认线程池
+     *
+     * <p>
+     *     1. 异步执行整体任务：
      *     解析excel同步执行，执行具体业务逻辑异步处理
      *     使用默认线程池，核心线程数4，最大线程数10，队列大小100
+     *     2. excel每一行并发执行：
+     *     通过设置isParallel为true，同时指定{@link ExcelUploadService#partSize}分片大小，即可触发excel上传
+     *     任务并发执行.
+     *     eg: 上传的excel总行数1000，分片大小设置为100，则分为1000 * 100 = 10个线程并发的去处理任务.
      * </p>
      *
      * @param context
      */
-    void asyncExecute(C context);
+    void asyncExecute(C context, boolean isParallel);
 
     /**
-     * 方法执行入口
+     * 异步执行入口，使用自定义线程池
      *
      * <p>
+     *     1. 异步执行整体任务：
      *     解析excel同步执行，执行具体业务逻辑异步处理
+     *     使用默认线程池，核心线程数4，最大线程数10，队列大小100
+     *     2. excel每一行并发执行：
+     *     通过设置isParallel为true，同时指定{@link ExcelUploadService#partSize}分片大小，即可触发excel上传
+     *     任务并发执行.
+     *     eg: 上传的excel总行数1000，分片大小设置为100，则分为1000 * 100 = 10个线程并发的去处理任务.
      * </p>
      *
      * @param context
+     * @param isParallel
      * @param executor 自定义线程池
      */
-    void asyncExecute(C context, ExecutorService executor);
+    void asyncExecute(C context, boolean isParallel, ExecutorService executor);
 
     /**
      * 校验context，包含参数非空判断、有效性判断
