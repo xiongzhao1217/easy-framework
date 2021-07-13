@@ -16,11 +16,9 @@
 ![异常类图](https://github.com/xiongzhao1217/markdown-photos/blob/master/easy-framework/exception.png?raw=true)
 #### rpc包
 1. 入参用法
-<br>
 ![微服务入参](https://github.com/xiongzhao1217/markdown-photos/blob/master/easy-framework/rpc-request.png?raw=true)
 
 2. 出参用法
-<br>
 ![微服务出参](https://github.com/xiongzhao1217/markdown-photos/blob/master/easy-framework/rpc-response.png?raw=true)
 
 ```java
