@@ -3,7 +3,7 @@
 ## 组件
 * [easy-core包](https://git.jd.com/b-gms/bgms-common/wikis/%E9%87%91%E9%BC%8Ecore%E5%8C%85)
 * [easy-util包](https://git.jd.com/b-gms/bgms-common/wikis/%E9%87%91%E9%BC%8Erpc%E5%8C%85)
-* [easy-excel包]()
+* [easy-excel包](https://github.com/xiongzhao1217/easy-framework/blob/main/README.md#easy-excel)
 
 ## easy-core
 #### 简介
