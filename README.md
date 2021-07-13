@@ -158,3 +158,21 @@ public class RpcResult<T> implements Serializable {
     }
 }
 ```
+
+## easy-excel
+#### 简介
+简单高可用的通用excel导入工具，让开发者只需关注业务逻辑的处理。
+
+#### 特性
+* 不需要关心excel和实体对象列表之间的转换，组件内部自动转换
+* 具备单用户并发量和单应用并发量控制，防止单应用负载过高导致挂掉
+* 支持异步处理excel上传任务，支持并发处理excel中的每一行的数据
+* 可通过指定某一列进行去重
+* 可实时查询任务执行进度，任务执行百分比
+* 可记录任意一行处理失败的具体原因，并支持导出附带失败原因的excel
+
+## 类图
+![image](https://github.com/xiongzhao1217/markdown-photos/blob/master/easy-framework/excel-uoload.png?raw=true)
+
+## 流程图
+![通用上传组件工作流程](https://github.com/xiongzhao1217/markdown-photos/blob/master/easy-framework/%E9%80%9A%E7%94%A8%E4%B8%8A%E4%BC%A0%E7%BB%84%E4%BB%B6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B.png?raw=true)
