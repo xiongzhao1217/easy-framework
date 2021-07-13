@@ -13,7 +13,7 @@
 ![枚举类图](https://github.com/xiongzhao1217/markdown-photos/blob/master/easy-framework/enum.png)
 #### exception包
 包含通用自定义异常， 继承自 `RuntimeException` 的 `AppException`, 继承自 `AppException` 的 `ManagerException`, `ServiceException`, `MessageException`，项目中的模块可抛出对应的业务异常。
-[]()
+![异常类图](https://github.com/xiongzhao1217/markdown-photos/blob/master/easy-framework/exception.png?raw=true)
 #### rpc包
 1. 入参用法
 <br>
