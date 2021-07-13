@@ -23,170 +23,111 @@
 
 ```java
 /**
- * RPC公用返还结果
- * @author xiongzhao1
+ * RPC通用返回体
+ * @author xiongzhao
  * @date 2021/06/11
  * @param <T>
  */
-public class RpcResult<T> implements Serializable{
+public class RpcResult<T> implements Serializable {
 
-	/**
-	 * success
-	 */
-	private boolean success;
-
-	/**
-	 * code
-	 */
-	private String code;
-
-	/**
-	 * message
-	 *
-	 */
-	private String message;
-
-	/**
-	 * data
-	 */
-	private T data;
-
-	/**
-	 * 无参success
-	 *
-	 * @param <E>
-	 * @return
-	 */
-	public static <E> RpcResult<E> success() {
-		return (new RpcResult<E>()).setSuccess(true);
-	}
-
-	/**
-	 * 异常success
-	 * @param e
-	 * @param <E>
-	 * @return
-	 */
-	public static <E> RpcResult<E> success(E e) {
-		return (new RpcResult<E>()).setSuccess(true).setData(e);
-	}
-
-	/**
-	 * 接口调用失败
-	 * @param message
-	 * @param <E>
-	 * @return
-	 */
-	public static <E> RpcResult<E> error(String message) {
-		return error(null, message, null);
-	}
-
-	/**
-	 * 接口调用失败
-	 * @param enumInterface
-	 * @param <E>
-	 * @return
-	 */
-	public static <E> RpcResult<E> error(EnumInterface enumInterface) {
-		return error(enumInterface.code() != null ? enumInterface.code().toString() : null, enumInterface.getMessage(), null);
-	}
-
-	/**
-	 * 带错误码、错误消息
-	 *
-	 * @param code
-	 * @param message
-	 * @param <E>
-	 * @return
-	 */
-	public static <E> RpcResult<E> error(String code, String message) {
-		return error(code, message, null);
-	}
-
-	/**
-	 * failure 异常
-	 *
-	 * @param code
-	 * @param message
-	 * @param e
-	 * @param <E>
-	 * @return
-	 */
-	public static <E> RpcResult<E> error(String code, String message, E e) {
-		return (new RpcResult<E>()).setSuccess(false).setCode(code).setMessage(message).setData(e);
-	}
-}
-```
-
-```java
-/**
- * 批量操作rpc返回结果
- *
- * <p>
- *     中断性错误，调用error静态方法，如前置参数校验错误
- *     否则调用success静态方法，分别返回处理成功的数据successList和处理失败的数据failList
- * </p>
- *
- * @author xiongzhao
- * @date 2021/06/15
- */
-public class RpcListResult<T> implements Serializable {
+    /**
+     * serialVersionUID
+     */
+    private static final long serialVersionUID = 1360359681132053257L;
 
     /**
      * success
      */
     private boolean success;
-    
+
     /**
      * code
      */
-    private String code;
-    
+    private Integer code;
+
     /**
      * message
+     *
      */
     private String message;
-    
+
+    /**
+     * data
+     */
+    private T data;
+
     /**
      * 成功列表
+     * <p>
+     *     批量操作,处理成功的数据列表
+     * </p>
      */
     private List<T> successList;
-    
+
     /**
      * 失败列表
+     * <p>
+     *     批量操作,处理失败的数据列表
+     * </p>
      */
     private List<T> failList;
 
+
     /**
-     * 调用成功返回
+     * 无data success
+     *
+     * @param <E>
+     * @return
      */
-    public static <T> RpcListResult<T> success(List<T> successList, List<T> failList) {
-        return new RpcListResult<T>()
+    public static <E> RpcResult<E> success() {
+        return (new RpcResult<E>()).setSuccess(true).setCode(RpcResultEnum.SUCCESS.getCode());
+    }
+
+    /**
+     * 有data success
+     * @param e
+     * @param <E>
+     * @return
+     */
+    public static <E> RpcResult<E> success(E e) {
+        return (new RpcResult<E>()).setSuccess(true).setCode(RpcResultEnum.SUCCESS.getCode()).setData(e);
+    }
+
+    /**
+     * 批量操作 success
+     * @param successList
+     * @param failList
+     * @param <T>
+     * @return
+     */
+    public static <T> RpcResult<T> success(List<T> successList, List<T> failList) {
+        return new RpcResult<T>()
                 .setSuccess(true)
-                .setCode(SystemConstant.DEFAULT_SUCCESS_CODE)
-                .setMessage(SystemConstant.DEFAULT_SUCCESS_MESSAGE)
+                .setCode(RpcResultEnum.SUCCESS.getCode())
+                .setMessage(RpcResultEnum.SUCCESS.getMessage())
                 .setSuccessList(successList)
                 .setFailList(failList);
     }
 
+
     /**
      * 接口调用失败
      * @param message
-     * @param <T>
+     * @param <E>
      * @return
      */
-    public static <T> RpcListResult<T> error(String message) {
-        return error(SystemConstant.DEFAULT_ERROR_CODE, message);
+    public static <E> RpcResult<E> error(String message) {
+        return error(RpcResultEnum.SYSTEM_ERROR.getCode(), message, null);
     }
 
     /**
      * 接口调用失败
      * @param enumInterface
-     * @param <T>
+     * @param <E>
      * @return
      */
-    public static <T> RpcListResult<T> error(EnumInterface enumInterface) {
-        return error(enumInterface.code() != null ? enumInterface.code().toString() : null, enumInterface.getMessage());
+    public static <E> RpcResult<E> error(EnumInterface<Integer> enumInterface) {
+        return error(enumInterface.getCode() != null ? enumInterface.getCode() : null, enumInterface.getMessage(), null);
     }
 
     /**
@@ -194,13 +135,24 @@ public class RpcListResult<T> implements Serializable {
      *
      * @param code
      * @param message
+     * @param <E>
      * @return
      */
-    public static RpcListResult error(String code, String message) {
-        return new RpcListResult()
-                .setSuccess(false)
-                .setCode(code)
-                .setMessage(message);
+    public static <E> RpcResult<E> error(Integer code, String message) {
+        return error(code, message, null);
+    }
+
+    /**
+     * 带异常
+     *
+     * @param code
+     * @param message
+     * @param e
+     * @param <E>
+     * @return
+     */
+    public static <E> RpcResult<E> error(Integer code, String message, E e) {
+        return (new RpcResult<E>()).setSuccess(false).setCode(code).setMessage(message).setData(e);
     }
 }
 ```
